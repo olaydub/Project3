@@ -45,9 +45,9 @@ namespace DMVService
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             //security credentials
-            string accessKey = "ASIAU2EKQQLJJRSIWVDR";
-            string secretKey = "/ZMeYESgCPm33NlPVIfEu1HvcGmre9OMRyF7fF3F";
-            string sessionToken = "FwoGZXIvYXdzEKX//////////wEaDKeKQt0ckeDE7uehOCLNATjkksJ0ydTb6d1DiKoq82/GIgdJadFhcwgzJLrBPKrbV5NbszHh4DFdMxZ4okWT0oqE7mUcXA+v6EuzHxwqTGjEVSl51bmzn7bFu3XN5vk4xEF40eSOBBM/THKtkiiIPyt9PPG7iamfKNZUS9cvgjGoe/K0Kt3A7K8mEUBe2CAs9w5v1qvpJlPBQOms/U0X0A1bTwSyouO07sn1l4YWV64tnfWjDs+pJyeEBpnDEW1vq7JirEPTpyr6nDPtG3AJBDlCfjBA4aQg1YfXAdIo2eWdpAYyLQH/VHNTrE95WaS/CHQ0GLtZ2wcQtZuzX4E2YHJYIUn0i+0eqPR3vLwY+PW+Kw==";
+            string accessKey = "";
+            string secretKey = "";
+            string sessionToken = "";
 
             SessionAWSCredentials credentials = new SessionAWSCredentials(accessKey, secretKey, sessionToken);
 
