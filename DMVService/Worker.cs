@@ -45,9 +45,9 @@ namespace DMVService
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             //security credentials
-            string accessKey = "ASIAU2EKQQLJJRSIWVDR";
-            string secretKey = "/ZMeYESgCPm33NlPVIfEu1HvcGmre9OMRyF7fF3F";
-            string sessionToken = "FwoGZXIvYXdzEKX//////////wEaDKeKQt0ckeDE7uehOCLNATjkksJ0ydTb6d1DiKoq82/GIgdJadFhcwgzJLrBPKrbV5NbszHh4DFdMxZ4okWT0oqE7mUcXA+v6EuzHxwqTGjEVSl51bmzn7bFu3XN5vk4xEF40eSOBBM/THKtkiiIPyt9PPG7iamfKNZUS9cvgjGoe/K0Kt3A7K8mEUBe2CAs9w5v1qvpJlPBQOms/U0X0A1bTwSyouO07sn1l4YWV64tnfWjDs+pJyeEBpnDEW1vq7JirEPTpyr6nDPtG3AJBDlCfjBA4aQg1YfXAdIo2eWdpAYyLQH/VHNTrE95WaS/CHQ0GLtZ2wcQtZuzX4E2YHJYIUn0i+0eqPR3vLwY+PW+Kw==";
+            string accessKey = "ASIAU2EKQQLJOWBL2FFY";
+            string secretKey = "aYi6U7vFqLQxXLf2JLBIsu/zGjwjNf84R2YdlEKC";
+            string sessionToken = "FwoGZXIvYXdzEMH//////////wEaDLJdL0Yhq5GX/LBhSSLNAc/CnEEgf0VHpbEwPyVdhotQBJwuxfmgqgPHTy9elgdniJje4NeOT+J5aY/tUQgcilNZqxzMMOIOaDsDaEXSU9kKvo7/yfSP23eFBf7KI4dQy0zz+zJXHBknWsul6beCsYcUXANDUMn2vPt0LNmFonpM1FfjgTKwhFw7LF4eJjoSkEfRA8ggiooNIEyE+SRbBqMYNlZB/MNykZ4bJWJipPZX2fmclIk+CBFabnHuyGIaSVHTlIS9Z32EKNvA47Z21wIrgGZdf3LQMls6cV8ohfejpAYyLWWHNSqtrXvW5SnWfdG1KKFXDvQ0zSv1Xufy19q2e5j9kZGJCwGTBcKdWMTtnA==";
 
             SessionAWSCredentials credentials = new SessionAWSCredentials(accessKey, secretKey, sessionToken);
 
@@ -190,14 +190,17 @@ namespace DMVService
 
             var receiveMessageResponse = await client.ReceiveMessageAsync(receiveMessageRequest);
 
-            // Delete the received message from the queue.
-            var deleteMessageRequest = new DeleteMessageRequest
+            if (receiveMessageResponse.Messages.Count > 0)
             {
-                QueueUrl = queueUrl,
-                ReceiptHandle = receiveMessageResponse.Messages[0].ReceiptHandle,
-            };
+                // Delete the received message from the queue.
+                var deleteMessageRequest = new DeleteMessageRequest
+                {
+                    QueueUrl = queueUrl,
+                    ReceiptHandle = receiveMessageResponse.Messages[0].ReceiptHandle,
+                };
 
-            await client.DeleteMessageAsync(deleteMessageRequest);
+                await client.DeleteMessageAsync(deleteMessageRequest);
+            }
 
             return receiveMessageResponse;
         }
