@@ -45,9 +45,9 @@ namespace DMVService
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             //security credentials
-            string accessKey = "ASIAU2EKQQLJOWBL2FFY";
-            string secretKey = "aYi6U7vFqLQxXLf2JLBIsu/zGjwjNf84R2YdlEKC";
-            string sessionToken = "FwoGZXIvYXdzEMH//////////wEaDLJdL0Yhq5GX/LBhSSLNAc/CnEEgf0VHpbEwPyVdhotQBJwuxfmgqgPHTy9elgdniJje4NeOT+J5aY/tUQgcilNZqxzMMOIOaDsDaEXSU9kKvo7/yfSP23eFBf7KI4dQy0zz+zJXHBknWsul6beCsYcUXANDUMn2vPt0LNmFonpM1FfjgTKwhFw7LF4eJjoSkEfRA8ggiooNIEyE+SRbBqMYNlZB/MNykZ4bJWJipPZX2fmclIk+CBFabnHuyGIaSVHTlIS9Z32EKNvA47Z21wIrgGZdf3LQMls6cV8ohfejpAYyLWWHNSqtrXvW5SnWfdG1KKFXDvQ0zSv1Xufy19q2e5j9kZGJCwGTBcKdWMTtnA==";
+            string accessKey = "ASIAU2EKQQLJJPSDDZG4";
+            string secretKey = "nM9syv+KhyjeyFq5/jrggUKrlT9/JP0mHw4m/H+2";
+            string sessionToken = "FwoGZXIvYXdzENb//////////wEaDAh/JuH2ETXze1OgtSLNATLvIrBC7k27MJlYV+yUD83dUGro380KeQjVzhnJk6OQFpuhFq9s2kQJto5hqDEEwtKryDi1DdBADjFn9qEUSVOfYHBvEbeSSYGLrbYMXnlqEteGjmMfMU+11vyxCeaXTRLCNMBqfhTWPJMFAYgp8H9POAvh8OwfKvfc6/syiPj/mmwa4lJTGpKJ2aVGr4Pr4IOlKv11IBu2TXCwbRuoE1zYHASRjolK+JIUthZXf/i1wkPamAK5QwpLwGOCadwouMxA2pDcDlzeHTPkDM8opcKopAYyLbE2/7SBJEndy7roJrMKxzW0esCAAAQfBfiZ7RfdD/EvWiOJXsQz3evnSMN56w==";
 
             SessionAWSCredentials credentials = new SessionAWSCredentials(accessKey, secretKey, sessionToken);
 
