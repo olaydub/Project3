@@ -10,6 +10,7 @@ using Amazon.Runtime;
 using System.Xml;
 using System.Xml.Linq;
 using Newtonsoft.Json.Linq;
+using System.Security.AccessControl;
 
 namespace DMVService
 
@@ -45,10 +46,9 @@ namespace DMVService
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             //security credentials
-            string accessKey = "ASIAU2EKQQLJJPSDDZG4";
-            string secretKey = "nM9syv+KhyjeyFq5/jrggUKrlT9/JP0mHw4m/H+2";
-            string sessionToken = "FwoGZXIvYXdzENb//////////wEaDAh/JuH2ETXze1OgtSLNATLvIrBC7k27MJlYV+yUD83dUGro380KeQjVzhnJk6OQFpuhFq9s2kQJto5hqDEEwtKryDi1DdBADjFn9qEUSVOfYHBvEbeSSYGLrbYMXnlqEteGjmMfMU+11vyxCeaXTRLCNMBqfhTWPJMFAYgp8H9POAvh8OwfKvfc6/syiPj/mmwa4lJTGpKJ2aVGr4Pr4IOlKv11IBu2TXCwbRuoE1zYHASRjolK+JIUthZXf/i1wkPamAK5QwpLwGOCadwouMxA2pDcDlzeHTPkDM8opcKopAYyLbE2/7SBJEndy7roJrMKxzW0esCAAAQfBfiZ7RfdD/EvWiOJXsQz3evnSMN56w==";
-
+            string accessKey = "ASIAU2EKQQLJMTBM4BIG";
+            string secretKey = "7pClJGm0i87aVr/Gn9GTfFWO6cs9MSluV4oGDt2L";
+            string sessionToken = "FwoGZXIvYXdzECoaDB3xpL6s0p9btsKSLyLNAb9ZBtBp4/99DY3MoY+rZ5B89SOwZg6f/yiDx1CByy5sjd1R0a2rcb/+cF64ZWdzgCnjiQ9o1BiBtKgG+ONgtt+N8QW1AAF2k5w9eubaFoJN8v6aB8ODUnFgZpqNb+vs25Bnlyvx7IOs6JNjgr4/vA1bX1XdAUOfEQImeFuOKdlITOGLkmFyO9N48ca9d5MI8z7lv3jHgEwlp8ukvAoK4+oihRKXM4c6f4ApItRbYZxB5J1OyR7+Dp/ygxn9X5JQ6qJo0UwytjGPV/h50fgolve6pAYyLR8uuixicjzvahcEWwktWXwuUdAPgNj92g7bedgQcoKKW17O5PU9qGMlqG+CIA==";
             SessionAWSCredentials credentials = new SessionAWSCredentials(accessKey, secretKey, sessionToken);
 
             //debug
@@ -84,29 +84,64 @@ namespace DMVService
                     WriteToLog("Message ID: " + messageId);
                     WriteToLog("Body: " + body);
                 }
+
+                /*
+                 {"plate_number": "6TRJ244", "Type": "no_stop", "DateTime": "6/16/2023 4:45:44 PM",
+                "Location": "Main St and 116th Ave intersection - Bellevue"}
+                 */
+
+
                 //Message Read from Downward queue
                 WriteToLog("Date: " + DateTime.Now.ToString() + "Read Message: " + body);
 
                 //DMV XML db
                 string dbFilePath = "C:\\Users\\Morpheus\\Documents\\BC\\Cloud\\Project3\\Project3\\DMVDatabase.xml";
 
-                //extract vehicle and owner info as JSON
-                //plate number is just the message body
-                string info = QueryDMVDatabase(dbFilePath, body);
+                //extract values from downward Q json
+                //plate number is plate_number value in json message body
+                //grab other s3 tags: Type, DateTime
+                if (body != "")
+                {
+                    JObject jsonFromDownwardQ = JObject.Parse(body);
+                    string plateNumber = (string)jsonFromDownwardQ["plate_number"];
+                    string type = (string)jsonFromDownwardQ["Type"];
+                    string dateTime = (string)jsonFromDownwardQ["DateTime"];
+                    string location = (string)jsonFromDownwardQ["Location"];
 
-                //upward queue 
-                string upwardQURL = "https://sqs.us-east-1.amazonaws.com/331002970834/P3UpwardQueue";
+                    //service log debug
+                    WriteToLog("plate number: " + plateNumber);
+                    WriteToLog("type: " + type);
+                    WriteToLog("dateTime: " + dateTime);
+                    WriteToLog("location: " + location);
 
-                //send info to upward queue
-                SendMessageToQueue(sqsClient, upwardQURL, info);
+                    //grab owner and vehicle info, must add s3 tags before sending back
+                    string info = QueryDMVDatabase(dbFilePath, plateNumber);
 
-                //debug
-                WriteToLog("Date: " + DateTime.Now.ToString() + "Posted message to Upward Queue: " + info);
+                    //upward queue 
+                    string upwardQURL = "https://sqs.us-east-1.amazonaws.com/331002970834/P3UpwardQueue";
 
+
+                    //add s3 tags to info before sending to upward Q
+                    //convert info to json
+                    JObject infoWithTags = JObject.Parse(info);
+                    infoWithTags.Add("Type", type);
+                    infoWithTags.Add("DateTime", dateTime);
+                    infoWithTags.Add("Location", location);
+
+                    //convert back to string
+                    info = infoWithTags.ToString();
+
+                    //send info to upward queue
+                    SendMessageToQueue(sqsClient, upwardQURL, info);
+
+                    //debug
+                    WriteToLog("Date: " + DateTime.Now.ToString() + "Posted message to Upward Queue: " + info);
+                }
+                
                 await Task.Delay(1000, stoppingToken);
             }
         }
-
+        
         //Query DMV database
         //xmlFilePath = DMV XML file path
         public string QueryDMVDatabase(string xmlFilePath, string plateNumber)
@@ -141,6 +176,7 @@ namespace DMVService
                     ownerName = ownerNode.SelectSingleNode("name").InnerText;
                     contact = ownerNode.SelectSingleNode("contact").InnerText;
 
+                    //
                     response = GenerateResponseJson(plateNumber, make, model, color, ownerName, contact);
                 }
                 else
